@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.org/dtd/hibernate-mapping.dtd">
+<hibernate-mapping>
+	<class name="Model.Article" table="Article">
+
+		<composite-id>
+			<key-property name="soumisLe" column="soumisLe" type="date" />
+<!-- 			<key-property name="auteur" column="auteur" type="string" /> -->
+<!-- 			<key-property name="departement" column="departement" type="string" /> -->
+			<key-many-to-one name="auteur" class="Model.Chercheur" />
+			<key-many-to-one name="departement" class="Model.Departement" column="departement" />
+		</composite-id>
+		<property name="coauteur" column="coauteur" type="char[]" />
+		
+	</class>
+</hibernate-mapping>

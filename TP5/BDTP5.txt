@@ -1,0 +1,80 @@
+-- Table numéro 1 : Departement
+
+CREATE TABLE DEPARTEMENT(
+nom VARCHAR(20) CONSTRAINT DEPT_PK PRIMARY KEY,
+dateCreation DATE,
+adresse VARCHAR(20) CONSTRAINT DEPT_ADR_UQ UNIQUE,
+telephone VARCHAR (20)
+);
+
+-- Table numéro 2 : Equipe
+
+CREATE TABLE EQUIPE (
+nom VARCHAR(20) CONSTRAINT EQUIPE_PK PRIMARY KEY,
+dateCreation DATE,
+departement VARCHAR(20) CONSTRAINT EQUIPE_DEPT_NN NOT NULL CONSTRAINT EQUIPE_DEPT_FK REFERENCES DEPARTEMENT(nom) ON DELETE SET NULL,
+responsable VARCHAR(20),
+nbrProjets Integer,
+CONSTRAINT RESP_UQ UNIQUE(departement,responsable)
+);
+
+-- Table numéro 3 : Chercheur
+
+CREATE TABLE CHERCHEUR(
+matricule CHAR(6) CONSTRAINT CHERCHEUR_PK PRIMARY KEY,
+prenom VARCHAR(20) CONSTRAINT CH_PRENOM_NN NOT NULL,
+nom VARCHAR(20) CONSTRAINT CH_NOM_NN NOT NULL,
+position VARCHAR(10) CONSTRAINT CH_POSITION_CK CHECK( UPPER(position) IN ('MAITRISE','DOCTORAT','POSTDOC')),
+equipe VARCHAR(20) CONSTRAINT CH_EQUIPE_FK REFERENCES EQUIPE(nom) ON DELETE SET NULL,
+salaire integer DEFAULT NULL,
+CONSTRAINT CH_NOM_UQ UNIQUE(nom,prenom)
+);
+
+-- Table numéro 4 : Article
+
+CREATE TABLE ARTICLE(
+auteur CHAR(6) CONSTRAINT ART_AUTEUR_NN NOT NULL CONSTRAINT ART_AUTEUR1_FK REFERENCES CHERCHEUR(matricule),
+coauteur CHAR(6) CONSTRAINT ART_AUTEUR2_FK REFERENCES CHERCHEUR(matricule),
+soumisLe TIMESTAMP CONSTRAINT ART_SOUMIS_NN NOT NULL,
+departement VARCHAR(20)  CONSTRAINT ART_DEPT_NN NOT NULL CONSTRAINT ART_DEPT_FK REFERENCES DEPARTEMENT(nom),
+CONSTRAINT ART_PK PRIMARY KEY (auteur, soumisLe,departement)
+);
+
+-- Insertion de rangées : exemples
+
+INSERT INTO Departement VALUES ('Informatique', TO_DATE('12-05-1966','DD:MM:YYYY'), 'Montreal', '514-654-4586');
+INSERT INTO Departement VALUES ('Electrique', TO_DATE('10-03-1930','DD:MM:YYYY'), 'Toronto', '612-725-2916');
+INSERT INTO Departement VALUES ('Mathematiques', TO_DATE('11-02-1905','DD:MM:YYYY'), 'Edmomton', '753-521-9750');
+INSERT INTO Departement VALUES ('Mecanique', TO_DATE('25-08-1915','DD:MM:YYYY'), 'Ottawa', '286-396-1275');
+INSERT INTO Departement VALUES ('Physique', TO_DATE('19-12-1904','DD:MM:YYYY'), 'Vancouver', '743-545-4892');
+
+INSERT INTO Equipe VALUES ('Reseaux', TO_DATE('12-05-1985','DD:MM:YYYY'), 'Informatique', 'Guy Carbonneau', 1);
+INSERT INTO Equipe VALUES ('Bases se donnees', TO_DATE('17-08-1970','DD:MM:YYYY'), 'Informatique', 'Bryan Colangelo', 2);
+INSERT INTO Equipe VALUES ('Laser', TO_DATE('08-03-1975','DD:MM:YYYY'), 'Physique', 'Bryan Murray', 2);
+INSERT INTO Equipe VALUES ('Robotique', TO_DATE('03-11-1960','DD:MM:YYYY'), 'Mecanique', 'Alain Vigneault', 3);
+INSERT INTO Equipe VALUES ('Integration', TO_DATE('16-10-1930','DD:MM:YYYY'), 'Mathematiques', 'John Witt', 2);
+INSERT INTO Equipe VALUES ('Condensateurs', TO_DATE('16-10-1940','DD:MM:YYYY'), 'Electrique', 'James McKenzie', 3);
+
+INSERT INTO CHERCHEUR VALUES ('M45673','Steve', 'Begin','doctorat', 'Reseaux', 75000);
+INSERT INTO CHERCHEUR VALUES ('M48543','Maxime', 'Leblanc','postdoc', 'Bases se donnees', 78000);
+INSERT INTO CHERCHEUR VALUES ('M46585','Alex', 'Kovalev','postdoc', 'Bases se donnees', NULL);
+INSERT INTO CHERCHEUR VALUES ('M45142','Maxime', 'Lapierre','maitrise', 'Reseaux',NULL);
+
+INSERT INTO CHERCHEUR VALUES ('M25476','Nik', 'Andropov','doctorat', 'Condensateurs', 85000);
+INSERT INTO CHERCHEUR VALUES ('M22556','Jason', 'Blake','postdoc', 'Condensateurs', NULL);
+
+INSERT INTO CHERCHEUR VALUES ('M11345','Cody', 'Bass','maitrise', 'Integration', NULL);
+INSERT INTO CHERCHEUR VALUES ('M15643','Jason', 'Spazza','doctorat', 'Integration', 67000);
+
+INSERT INTO CHERCHEUR VALUES ('M57785','Sam', 'Gagner','maitrise', 'Robotique', 90000);
+INSERT INTO CHERCHEUR VALUES ('M52135','Jarrett', 'Stoll','postdoc', 'Robotique', NULL);
+
+INSERT INTO CHERCHEUR VALUES ('M62211','Mike', 'Brown','maitrise', 'Laser', NULL);
+INSERT INTO CHERCHEUR VALUES ('M62338','Marc-Andre', 'Bernier','postdoc', 'Laser', 65000);
+
+INSERT INTO Article (auteur,soumisLe,departement,coauteur) VALUES ('M22556', TO_DATE('11-04-2008 19:38:47', 'DD:MM:YYYY HH24:MI:SS'), 'Electrique','M25476');
+INSERT INTO Article (auteur,soumisLe,departement,coauteur) VALUES ('M48543', TO_DATE('16-05-2007 20:05:12', 'DD:MM:YYYY HH24:MI:SS'), 'Informatique','M46585');
+
+INSERT INTO Article VALUES ('M45673', 'M45142', TO_DATE('17-06-2006 20:15:32', 'DD:MM:YYYY HH24:MI:SS'), 'Informatique');
+INSERT INTO Article VALUES ('M62338', 'M62211', TO_DATE('08-07-2005 19:07:11', 'DD:MM:YYYY HH24:MI:SS'), 'Physique');
+INSERT INTO Article VALUES ('M15643', 'M11345', TO_DATE('09-08-2004 20:00:16', 'DD:MM:YYYY HH24:MI:SS'), 'Mathematiques');
